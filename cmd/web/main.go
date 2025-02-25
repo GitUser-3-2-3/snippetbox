@@ -9,8 +9,8 @@ import (
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
-	mux.HandleFunc("/", showSnippet)
-	mux.HandleFunc("/", createSnippet)
+	mux.HandleFunc("/snippet", showSnippet)
+	mux.HandleFunc("/snippet/create", createSnippet)
 
 	logInfo("Starting a server on :4000")
 	err := http.ListenAndServe(":4000", mux)
