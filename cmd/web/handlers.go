@@ -13,7 +13,11 @@ func home(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	ts, err := template.ParseFiles("./ui/html/home.page.go.html")
+	paths := []string{"ui/html/home.page.go.html",
+		"ui/html/base.layout.go.html",
+		"ui/html/footer.partial.go.html",
+	}
+	ts, err := template.ParseFiles(paths...) // 'paths' is a variadic parameter
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, "Internal Server Error", 500)
