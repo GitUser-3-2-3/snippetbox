@@ -1,19 +1,8 @@
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta content="width=device-width, initial-scale=1" name="viewport">
-        <title>Home - SnippetBox</title>
-    </head>
-    <body>
-        <header>
-            <h1><a href="/">SnippetBox</a></h1>
-        </header>
-        <nav>
-            <a href="/">Home</a>
-        </nav>
-        <section>
-            <h2>Latest Snippets!</h2>
-            <p>There's nothing to see here yet!</p>
-        </section>
-    </body>
-</html>
+{{template "base" .}}
+
+{{define "title"}}Home{{end}}
+
+{{define "body"}}
+<h2>Latest Snippets</h2>
+<p>There's nothing to see here yet!</p>
+{{end}}
