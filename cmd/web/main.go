@@ -29,14 +29,16 @@ func main() {
 	if err != nil {
 		logError.Fatal(err)
 	}
-	_ = db.Close()
-
+	defer func(db *sql.DB) {
+		if err := db.Close(); err != nil {
+			logError.Fatal("Error closing db", err)
+		}
+	}(db)
 	app := &application{
 		logError: logError,
 		logInfo:  logInfo,
 		snippets: &mysql.SnippetModel{DB: db},
 	}
-
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: logError,
