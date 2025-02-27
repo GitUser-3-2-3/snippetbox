@@ -7,12 +7,19 @@ import (
 	"os"
 )
 
+func logInfo(msg string, val ...any) {
+	infoLog := log.New(os.Stdout, "INFO::\t", log.Ldate|log.Ltime)
+	infoLog.Printf(msg, val)
+}
+
+func logError(val ...any) {
+	errorLog := log.New(os.Stderr, "ERROR::\t", log.Ldate|log.Ltime|log.Lshortfile)
+	errorLog.Fatal(val)
+}
+
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address.")
 	flag.Parse()
-
-	infoLog := log.New(os.Stdout, "INFO::\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stderr, "ERROR::\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
@@ -22,7 +29,7 @@ func main() {
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	infoLog.Printf("Starting a server on %s", *addr)
+	logInfo("Starting a server on %s", *addr)
 	err := http.ListenAndServe(*addr, mux)
-	errorLog.Fatal(err)
+	logError(err)
 }
