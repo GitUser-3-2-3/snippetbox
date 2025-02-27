@@ -1,10 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
+
+	"snippetbox/pkg/models"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -28,17 +31,20 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		w.Header().Set("Allow", "GET")
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
 	}
-	_, _ = fmt.Fprintf(w, "A specific snippet of ID...%d", id)
+	spt, err := app.snippets.Get(id)
+	if errors.Is(err, models.ErrNoRecord) {
+		app.notFound(w)
+		return
+	} else if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	_, _ = fmt.Fprintf(w, "%v", spt)
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
@@ -47,5 +53,10 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	_, _ = w.Write([]byte("Creating a new snippet..."))
+	title, content, expires := "O snail", "O snail climb Mount Fuji, but slowly, slowly!", "7"
+	id, err := app.snippets.Insert(title, content, expires)
+	if err != nil {
+		app.serverError(w, err)
+	}
+	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
 }
