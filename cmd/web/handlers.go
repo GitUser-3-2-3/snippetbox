@@ -15,6 +15,14 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
+	spt, err := app.snippets.Latest()
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	for _, s := range spt {
+		_, _ = fmt.Fprintf(w, "%v\n", s)
+	}
 	paths := []string{"ui/html/home.page.go.html",
 		"ui/html/base.layout.go.html",
 		"ui/html/footer.partial.go.html",
@@ -24,7 +32,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	err = ts.Execute(w, nil)
+	err = ts.Execute(w, spt)
 	if err != nil {
 		app.serverError(w, err)
 	}
