@@ -20,19 +20,19 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
 	}
 	for _, page := range pages {
 		name := filepath.Base(page)
-		ts, err := template.ParseFiles(page)
+		tmplt, err := template.ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}
-		ts, err = ts.ParseGlob(filepath.Join(dir, "*.layout.gohtml"))
+		tmplt, err = tmplt.ParseGlob(filepath.Join(dir, "*.layout.gohtml"))
 		if err != nil {
 			return nil, err
 		}
-		ts, err = ts.ParseGlob(filepath.Join(dir, "*.partial.gohtml"))
+		tmplt, err = tmplt.ParseGlob(filepath.Join(dir, "*.partial.gohtml"))
 		if err != nil {
 			return nil, err
 		}
-		cache[name] = ts
+		cache[name] = tmplt
 	}
 	return cache, nil
 }
