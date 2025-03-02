@@ -20,18 +20,17 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	for _, s := range spt {
-		_, _ = fmt.Fprintf(w, "%v\n", s)
-	}
-	paths := []string{"ui/html/home.page.go.html",
-		"ui/html/base.layout.go.html", "ui/html/footer.partial.go.html",
+	data := &templateData{Snippets: spt}
+
+	paths := []string{"ui/html/home.page.gohtml",
+		"ui/html/base.layout.gohtml", "ui/html/footer.partial.gohtml",
 	}
 	ts, err := template.ParseFiles(paths...) // 'paths' is a variadic parameter
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
-	err = ts.Execute(w, spt)
+	err = ts.Execute(w, data)
 	if err != nil {
 		app.serverError(w, err)
 	}
@@ -53,8 +52,8 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	}
 	data := &templateData{Snippet: spt}
 
-	paths := []string{"./ui/html/show.page.go.html",
-		"./ui/html/base.layout.go.html", "./ui/html/footer.partial.go.html",
+	paths := []string{"./ui/html/show.page.gohtml",
+		"./ui/html/base.layout.gohtml", "./ui/html/footer.partial.gohtml",
 	}
 	ts, err := template.ParseFiles(paths...)
 	if err != nil {
