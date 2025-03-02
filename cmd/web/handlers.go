@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 
@@ -20,20 +19,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	data := &templateData{Snippets: spt}
-
-	paths := []string{"ui/html/home.page.gohtml",
-		"ui/html/base.layout.gohtml", "ui/html/footer.partial.gohtml",
-	}
-	ts, err := template.ParseFiles(paths...) // 'paths' is a variadic parameter
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-	err = ts.Execute(w, data)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	app.render(w, r, "home.page.gohtml", &templateData{
+		Snippets: spt,
+	})
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
@@ -50,20 +38,9 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	data := &templateData{Snippet: spt}
-
-	paths := []string{"./ui/html/show.page.gohtml",
-		"./ui/html/base.layout.gohtml", "./ui/html/footer.partial.gohtml",
-	}
-	ts, err := template.ParseFiles(paths...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-	err = ts.Execute(w, data)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	app.render(w, r, "show.page.gohtml", &templateData{
+		Snippet: spt,
+	})
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {

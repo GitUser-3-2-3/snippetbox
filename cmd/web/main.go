@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -12,9 +13,10 @@ import (
 )
 
 type application struct {
-	logError *log.Logger
-	logInfo  *log.Logger
-	snippets *mysql.SnippetModel
+	logError      *log.Logger
+	logInfo       *log.Logger
+	snippets      *mysql.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -34,10 +36,15 @@ func main() {
 			logError.Fatal("Error closing db", err)
 		}
 	}(db)
+	templateCache, err := newTemplateCache("./ui/html/")
+	if err != nil {
+		logError.Fatal(err)
+	}
 	app := &application{
-		logError: logError,
-		logInfo:  logInfo,
-		snippets: &mysql.SnippetModel{DB: db},
+		logError:      logError,
+		logInfo:       logInfo,
+		snippets:      &mysql.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 	srv := &http.Server{
 		Addr:     *addr,
