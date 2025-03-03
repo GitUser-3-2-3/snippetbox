@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"time"
 )
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
@@ -21,18 +22,24 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
-//goland:noinspection GoUnusedParameter
-func (app *application) render(
-	w http.ResponseWriter, r *http.Request, name string, td *templateData) {
+func (app *application) addDefaultData(td *templateData, r *http.Request) *templateData {
+	if td == nil {
+		td = &templateData{}
+	}
+	td.CurrentYear = time.Now().Year()
+	return td
+}
 
+//goland:noinspection GoUnusedParameter
+func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
 	tmplt, ok := app.templateCache[name]
 	if !ok {
-		app.serverError(
-			w, fmt.Errorf("the template %s does not exist", name))
+		err := fmt.Errorf("used template %s does not exist", name)
+		app.serverError(w, err)
 		return
 	}
 	buf := new(bytes.Buffer)
-	err := tmplt.Execute(buf, td)
+	err := tmplt.Execute(buf, app.addDefaultData(td, r))
 	if err != nil {
 		app.serverError(w, err)
 		return
