@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"runtime/debug"
@@ -26,11 +27,15 @@ func (app *application) render(
 
 	tmplt, ok := app.templateCache[name]
 	if !ok {
-		app.serverError(w, fmt.Errorf("the template %s does not exist", name))
+		app.serverError(
+			w, fmt.Errorf("the template %s does not exist", name))
 		return
 	}
-	err := tmplt.Execute(w, td)
+	buf := new(bytes.Buffer)
+	err := tmplt.Execute(buf, td)
 	if err != nil {
 		app.serverError(w, err)
+		return
 	}
+	_, _ = buf.WriteTo(w)
 }
