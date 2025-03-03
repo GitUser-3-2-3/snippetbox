@@ -8,8 +8,9 @@ import (
 	"net/http"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql"
 	"snippetbox/pkg/models/mysql"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type application struct {
