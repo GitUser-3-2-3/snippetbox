@@ -30,7 +30,6 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 	return td
 }
 
-//goland:noinspection GoUnusedParameter
 func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
 	tmplt, ok := app.templateCache[name]
 	if !ok {
