@@ -37,7 +37,7 @@ func main() {
 			logError.Fatal("Error closing db", err)
 		}
 	}(db)
-	templateCache, err := newTemplateCache("./ui/html/")
+	templateCache, err := newTemplateCache()
 	if err != nil {
 		logError.Fatal(err)
 	}
@@ -54,7 +54,9 @@ func main() {
 	}
 	logInfo.Printf("Starting server on %s", *addr)
 	err = srv.ListenAndServe()
-	logError.Fatal(err)
+	if err != nil {
+		logError.Fatal(err)
+	}
 }
 
 func openDB(dsn string) (*sql.DB, error) {
