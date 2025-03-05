@@ -14,11 +14,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type application struct {
+type backend struct {
+	templateCache map[string]*template.Template
 	logError      *log.Logger
 	logInfo       *log.Logger
 	snippets      *mysql.SnippetModel
-	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -42,7 +42,7 @@ func main() {
 	if err != nil {
 		logError.Fatal(err)
 	}
-	app := &application{
+	bknd := &backend{
 		logError:      logError,
 		logInfo:       logInfo,
 		snippets:      &mysql.SnippetModel{DB: db},
@@ -51,7 +51,7 @@ func main() {
 	srv := &http.Server{
 		ErrorLog:          logError,
 		Addr:              *addr,
-		Handler:           app.routes(),
+		Handler:           bknd.routes(),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 	logInfo.Printf("Starting server on %s", *addr)
