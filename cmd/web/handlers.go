@@ -6,53 +6,53 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/julienschmidt/httprouter"
 	"snippetbox/pkg/models"
 )
 
-func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		app.notFound(w)
-		return
-	}
-	spt, err := app.snippets.Latest()
+func (bknd *backend) home(w http.ResponseWriter, r *http.Request) {
+	spt, err := bknd.snippets.Latest()
 	if err != nil {
-		app.serverError(w, err)
+		bknd.serverError(w, err)
 		return
 	}
-	data := app.newTemplateData(r)
+	data := bknd.newTemplateData(r)
 	data.Snippets = spt
-	app.renderTemplate(w, r, http.StatusOK, "home.gohtml", data)
+	bknd.renderTemplate(w, r, http.StatusOK, "home.gohtml", data)
 }
 
-func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+func (bknd *backend) snippetView(w http.ResponseWriter, r *http.Request) {
+	params := httprouter.ParamsFromContext(r.Context())
+	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil || id < 1 {
-		app.notFound(w)
+		bknd.notFound(w)
 		return
 	}
-	spt, err := app.snippets.Get(id)
+	spt, err := bknd.snippets.Get(id)
 	if errors.Is(err, models.ErrNoRecord) {
-		app.notFound(w)
+		bknd.notFound(w)
 		return
 	} else if err != nil {
-		app.serverError(w, err)
+		bknd.serverError(w, err)
 		return
 	}
-	data := app.newTemplateData(r)
+	data := bknd.newTemplateData(r)
 	data.Snippet = spt
-	app.renderTemplate(w, r, http.StatusOK, "view.gohtml", data)
+	bknd.renderTemplate(w, r, http.StatusOK, "view.gohtml", data)
 }
 
-func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", "POST")
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
-	title, content, expires := "O snail", "O snail climb Mount Fuji, but slowly, slowly!", "7"
-	id, err := app.snippets.Insert(title, content, expires)
+func (bknd *backend) snippetCreate(w http.ResponseWriter, _ *http.Request) {
+	_, err := w.Write([]byte("display form for creating snippet"))
 	if err != nil {
-		app.serverError(w, err)
+		bknd.serverError(w, err)
 	}
-	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
+}
+
+func (bknd *backend) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+	title, content, expires := "O snail", "O snail climb Mount Fuji, but slowly, slowly!", "7"
+	id, err := bknd.snippets.Insert(title, content, expires)
+	if err != nil {
+		bknd.serverError(w, err)
+	}
+	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
