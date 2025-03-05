@@ -28,8 +28,8 @@ func (app *application) newTemplateData(_ *http.Request) *templateData {
 	}
 }
 
-func (app *application) renderTemplate(w http.ResponseWriter, _ *http.Request, status int,
-	page string, data *templateData,
+func (app *application) renderTemplate(w http.ResponseWriter, _ *http.Request,
+	status int, page string, data *templateData,
 ) {
 	tmplt, ok := app.templateCache[page]
 	if !ok {
