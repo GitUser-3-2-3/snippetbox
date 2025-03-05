@@ -22,13 +22,13 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
-func (app *application) newTemplateData(r *http.Request) *templateData {
+func (app *application) newTemplateData(_ *http.Request) *templateData {
 	return &templateData{
 		CurrentYear: time.Now().Year(),
 	}
 }
 
-func (app *application) renderTemplate(w http.ResponseWriter, r *http.Request, status int,
+func (app *application) renderTemplate(w http.ResponseWriter, _ *http.Request, status int,
 	page string, data *templateData,
 ) {
 	tmplt, ok := app.templateCache[page]
