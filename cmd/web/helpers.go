@@ -28,8 +28,9 @@ func (app *application) newTemplateData(r *http.Request) *templateData {
 	}
 }
 
-func (app *application) render(
-	w http.ResponseWriter, r *http.Request, status int, page string, data *templateData) {
+func (app *application) render(w http.ResponseWriter, r *http.Request, status int,
+	page string, data *templateData,
+) {
 	tmplt, ok := app.templateCache[page]
 	if !ok {
 		app.serverError(w, fmt.Errorf("page '%s' not found", page))
