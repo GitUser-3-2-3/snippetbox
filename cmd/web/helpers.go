@@ -45,6 +45,6 @@ func (app *application) renderTemplate(w http.ResponseWriter, _ *http.Request,
 	w.WriteHeader(status)
 	_, err = buf.WriteTo(w)
 	if err != nil {
-		app.serverError(w, err)
+		app.serverError(w, fmt.Errorf("error writing buf content: %w", err))
 	}
 }
