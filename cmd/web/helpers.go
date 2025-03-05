@@ -22,26 +22,25 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
-func (app *application) addDefaultData(td *templateData, r *http.Request) *templateData {
-	if td == nil {
-		td = &templateData{}
+func (app *application) newTemplateData(r *http.Request) *templateData {
+	return &templateData{
+		CurrentYear: time.Now().Year(),
 	}
-	td.CurrentYear = time.Now().Year()
-	return td
 }
 
-func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
-	tmplt, ok := app.templateCache[name]
+func (app *application) render(w http.ResponseWriter, r *http.Request, status int, page string, data *templateData) {
+	tmplt, ok := app.templateCache[page]
 	if !ok {
-		err := fmt.Errorf("used template %s does not exist", name)
+		err := fmt.Errorf("used template %s does not exist", page)
 		app.serverError(w, err)
 		return
 	}
 	buf := new(bytes.Buffer)
-	err := tmplt.Execute(buf, app.addDefaultData(td, r))
+	err := tmplt.ExecuteTemplate(buf, "base", data)
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
+	w.WriteHeader(status)
 	_, _ = buf.WriteTo(w)
 }
