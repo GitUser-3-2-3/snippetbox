@@ -8,43 +8,43 @@ import (
 	"time"
 )
 
-func (app *application) serverError(w http.ResponseWriter, err error) {
+func (bknd *backend) serverError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-	_ = app.logError.Output(2, trace)
+	_ = bknd.logError.Output(2, trace)
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
 
-func (app *application) notFound(w http.ResponseWriter) {
-	app.clientError(w, http.StatusNotFound)
+func (bknd *backend) notFound(w http.ResponseWriter) {
+	bknd.clientError(w, http.StatusNotFound)
 }
 
-func (app *application) clientError(w http.ResponseWriter, status int) {
+func (bknd *backend) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
-func (app *application) newTemplateData(_ *http.Request) *templateData {
+func (bknd *backend) newTemplateData(_ *http.Request) *templateData {
 	return &templateData{
 		CurrentYear: time.Now().Year(),
 	}
 }
 
-func (app *application) renderTemplate(w http.ResponseWriter, _ *http.Request,
+func (bknd *backend) renderTemplate(w http.ResponseWriter, _ *http.Request,
 	status int, page string, data *templateData,
 ) {
-	tmplt, ok := app.templateCache[page]
+	tmplt, ok := bknd.templateCache[page]
 	if !ok {
-		app.serverError(w, fmt.Errorf("page '%s' not found", page))
+		bknd.serverError(w, fmt.Errorf("page '%s' not found", page))
 		return
 	}
 	buf := new(bytes.Buffer)
 	err := tmplt.ExecuteTemplate(buf, "base", data)
 	if err != nil {
-		app.serverError(w, err)
+		bknd.serverError(w, err)
 		return
 	}
 	w.WriteHeader(status)
 	_, err = buf.WriteTo(w)
 	if err != nil {
-		app.serverError(w, fmt.Errorf("error writing buf content: %w", err))
+		bknd.serverError(w, fmt.Errorf("error writing buf content: %w", err))
 	}
 }
