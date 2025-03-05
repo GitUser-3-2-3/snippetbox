@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"snippetbox/pkg/models/mysql"
 
@@ -25,8 +26,8 @@ func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address.")
 	flag.Parse()
 
-	logInfo := log.New(os.Stdout, "INFO::\t", log.Ldate|log.Ltime)
-	logError := log.New(os.Stderr, "ERROR::\t", log.Ldate|log.Ltime|log.Lshortfile)
+	logInfo := log.New(os.Stdout, "INFO - \t", log.Ldate|log.Ltime)
+	logError := log.New(os.Stderr, "ERROR - \t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	db, err := openDB(*dsn)
 	if err != nil {
@@ -48,9 +49,10 @@ func main() {
 		templateCache: templateCache,
 	}
 	srv := &http.Server{
-		Addr:     *addr,
-		ErrorLog: logError,
-		Handler:  app.routes(),
+		ErrorLog:          logError,
+		Addr:              *addr,
+		Handler:           app.routes(),
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 	logInfo.Printf("Starting server on %s", *addr)
 	err = srv.ListenAndServe()
