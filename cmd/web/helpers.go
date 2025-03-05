@@ -32,8 +32,7 @@ func (app *application) render(
 	w http.ResponseWriter, r *http.Request, status int, page string, data *templateData) {
 	tmplt, ok := app.templateCache[page]
 	if !ok {
-		err := fmt.Errorf("used template %s does not exist", page)
-		app.serverError(w, err)
+		app.serverError(w, fmt.Errorf("page '%s' not found", page))
 		return
 	}
 	buf := new(bytes.Buffer)
