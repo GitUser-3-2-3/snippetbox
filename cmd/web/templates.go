@@ -20,23 +20,24 @@ func humanDate(t time.Time) string {
 
 var functions = template.FuncMap{"humanDate": humanDate}
 
-func newTemplateCache(dir string) (map[string]*template.Template, error) {
+func newTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
-	pages, err := filepath.Glob(filepath.Join(dir, "*.page.gohtml"))
+
+	pages, err := filepath.Glob("./ui/html/pages/*.gohtml")
 	if err != nil {
 		return nil, err
 	}
 	for _, page := range pages {
 		name := filepath.Base(page)
-		tmplt, err := template.New(name).Funcs(functions).ParseFiles(page)
+		tmplt, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.gohtml")
 		if err != nil {
 			return nil, err
 		}
-		tmplt, err = tmplt.ParseGlob(filepath.Join(dir, "*.layout.gohtml"))
+		tmplt, err = tmplt.ParseGlob("./ui/html/partials/*.gohtml")
 		if err != nil {
 			return nil, err
 		}
-		tmplt, err = tmplt.ParseGlob(filepath.Join(dir, "*.partial.gohtml"))
+		tmplt, err = tmplt.ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}
