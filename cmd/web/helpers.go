@@ -28,8 +28,8 @@ func (app *application) newTemplateData(r *http.Request) *templateData {
 	}
 }
 
-func (app *application) renderTemplate(w http.ResponseWriter, r *http.Request, status int,
-	page string, data *templateData,
+func (app *application) renderTemplate(w http.ResponseWriter, r *http.Request,
+	status int, page string, data *templateData,
 ) {
 	tmplt, ok := app.templateCache[page]
 	if !ok {
@@ -43,5 +43,8 @@ func (app *application) renderTemplate(w http.ResponseWriter, r *http.Request, s
 		return
 	}
 	w.WriteHeader(status)
-	_, _ = buf.WriteTo(w)
+	_, err = buf.WriteTo(w)
+	if err != nil {
+		app.serverError(w, err)
+	}
 }
