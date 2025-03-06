@@ -12,7 +12,7 @@ type SnippetModel struct {
 	DB *sql.DB
 }
 
-func (mdl *SnippetModel) Insert(title, content, expires string) (int, error) {
+func (mdl *SnippetModel) Insert(title, content string, expires int) (int, error) {
 	stmt := `INSERT INTO snippets (title, content, created, expires) 
 			 VALUES (?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))`
 
