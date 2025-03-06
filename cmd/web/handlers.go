@@ -41,11 +41,9 @@ func (bknd *backend) snippetView(w http.ResponseWriter, r *http.Request) {
 	bknd.renderTemplate(w, r, http.StatusOK, "view.gohtml", data)
 }
 
-func (bknd *backend) snippetCreate(w http.ResponseWriter, _ *http.Request) {
-	_, err := w.Write([]byte("display form for creating snippet"))
-	if err != nil {
-		bknd.serverError(w, err)
-	}
+func (bknd *backend) snippetCreate(w http.ResponseWriter, r *http.Request) {
+	data := bknd.newTemplateData(r)
+	bknd.renderTemplate(w, r, http.StatusOK, "create.gohtml", data)
 }
 
 func (bknd *backend) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
