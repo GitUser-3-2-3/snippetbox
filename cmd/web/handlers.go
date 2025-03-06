@@ -47,7 +47,18 @@ func (bknd *backend) snippetCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bknd *backend) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
-	title, content, expires := "O snail", "O snail climb Mount Fuji, but slowly, slowly!", "7"
+	err := r.ParseForm()
+	if err != nil {
+		bknd.clientError(w, http.StatusBadRequest)
+		return
+	}
+	content := r.PostForm.Get("content")
+	title := r.PostForm.Get("title")
+	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
+	if err != nil {
+		bknd.clientError(w, http.StatusBadRequest)
+		return
+	}
 	id, err := bknd.snippets.Insert(title, content, expires)
 	if err != nil {
 		bknd.serverError(w, err)
