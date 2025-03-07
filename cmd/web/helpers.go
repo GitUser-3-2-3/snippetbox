@@ -43,6 +43,6 @@ func (bknd *backend) renderTemplate(w http.ResponseWriter, status int, page stri
 	w.WriteHeader(status)
 	_, err = buf.WriteTo(w)
 	if err != nil {
-		bknd.serverError(w, fmt.Errorf("error writing buf content: %w", err))
+		bknd.serverError(w, fmt.Errorf("error writing content: %w", err))
 	}
 }
