@@ -52,6 +52,7 @@ func (bknd *backend) snippetView(w http.ResponseWriter, r *http.Request) {
 
 func (bknd *backend) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	data := bknd.newTemplateData(r)
+	data.Form = snippetCreateForm{Expires: 365}
 	bknd.renderTemplate(w, http.StatusOK, "create.gohtml", data)
 }
 
@@ -90,14 +91,14 @@ func validate(title, content string, expires int) map[string]string {
 	var inputErrors = make(map[string]string)
 
 	if strings.TrimSpace(title) == "" {
-		inputErrors["title"] = "This Field cannot be blank"
+		inputErrors["title"] = "Title cannot be blank"
 	} else if utf8.RuneCountInString(title) > 100 {
 		inputErrors["title"] = "Title must be less than 100 characters"
 	}
 	if strings.TrimSpace(content) == "" {
-		inputErrors["content"] = "Field cannot be blank"
+		inputErrors["content"] = "Content cannot be blank"
 	}
-	if expires != 1 && expires != 7 && expires != 30 && expires != 365 {
+	if expires != 1 && expires != 30 && expires != 365 {
 		inputErrors["expires"] = "Expires does not match expected value"
 	}
 	return inputErrors
