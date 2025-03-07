@@ -28,9 +28,7 @@ func (bknd *backend) newTemplateData(_ *http.Request) *templateData {
 	}
 }
 
-func (bknd *backend) renderTemplate(w http.ResponseWriter, _ *http.Request,
-	status int, page string, data *templateData,
-) {
+func (bknd *backend) renderTemplate(w http.ResponseWriter, status int, page string, data *templateData) {
 	tmplt, ok := bknd.templateCache[page]
 	if !ok {
 		bknd.serverError(w, fmt.Errorf("page '%s' not found", page))
