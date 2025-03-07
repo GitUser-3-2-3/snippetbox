@@ -12,6 +12,13 @@ import (
 	"snippetbox/pkg/models"
 )
 
+type snippetCreateForm struct {
+	Title       string
+	Content     string
+	Expires     int
+	FieldErrors map[string]string
+}
+
 func (bknd *backend) home(w http.ResponseWriter, r *http.Request) {
 	spt, err := bknd.snippets.Latest()
 	if err != nil {
@@ -20,7 +27,7 @@ func (bknd *backend) home(w http.ResponseWriter, r *http.Request) {
 	}
 	data := bknd.newTemplateData(r)
 	data.Snippets = spt
-	bknd.renderTemplate(w, r, http.StatusOK, "home.gohtml", data)
+	bknd.renderTemplate(w, http.StatusOK, "home.gohtml", data)
 }
 
 func (bknd *backend) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -40,12 +47,12 @@ func (bknd *backend) snippetView(w http.ResponseWriter, r *http.Request) {
 	}
 	data := bknd.newTemplateData(r)
 	data.Snippet = spt
-	bknd.renderTemplate(w, r, http.StatusOK, "view.gohtml", data)
+	bknd.renderTemplate(w, http.StatusOK, "view.gohtml", data)
 }
 
 func (bknd *backend) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	data := bknd.newTemplateData(r)
-	bknd.renderTemplate(w, r, http.StatusOK, "create.gohtml", data)
+	bknd.renderTemplate(w, http.StatusOK, "create.gohtml", data)
 }
 
 func (bknd *backend) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -54,22 +61,25 @@ func (bknd *backend) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 		bknd.clientError(w, http.StatusBadRequest)
 		return
 	}
-	content := r.PostForm.Get("content")
-	title := r.PostForm.Get("title")
 	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
 	if err != nil {
 		bknd.clientError(w, http.StatusBadRequest)
 		return
 	}
-	inputErrors := validate(title, content, expires)
-	if len(inputErrors) > 0 {
-		_, err := fmt.Fprint(w, inputErrors)
-		if err != nil {
-			bknd.serverError(w, err)
-		}
+	form := snippetCreateForm{
+		Title:       r.PostForm.Get("title"),
+		Content:     r.PostForm.Get("content"),
+		Expires:     expires,
+		FieldErrors: map[string]string{},
+	}
+	form.FieldErrors = validate(form.Title, form.Content, form.Expires)
+	if len(form.FieldErrors) > 0 {
+		data := bknd.newTemplateData(r)
+		data.Form = form
+		bknd.renderTemplate(w, http.StatusUnprocessableEntity, "create.gohtml", data)
 		return
 	}
-	id, err := bknd.snippets.Insert(title, content, expires)
+	id, err := bknd.snippets.Insert(form.Title, form.Content, form.Expires)
 	if err != nil {
 		bknd.serverError(w, err)
 	}
