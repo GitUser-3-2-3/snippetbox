@@ -5,18 +5,17 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
-	"unicode/utf8"
 
 	"github.com/julienschmidt/httprouter"
+	"snippetbox/internal/validator"
 	"snippetbox/pkg/models"
 )
 
 type snippetCreateForm struct {
-	Title       string
-	Content     string
-	Expires     int
-	FieldErrors map[string]string
+	Title   string
+	Content string
+	Expires int
+	validator.Validator
 }
 
 func (bknd *backend) home(w http.ResponseWriter, r *http.Request) {
@@ -67,39 +66,34 @@ func (bknd *backend) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 		bknd.clientError(w, http.StatusBadRequest)
 		return
 	}
-	form := snippetCreateForm{
-		Title:       r.PostForm.Get("title"),
-		Content:     r.PostForm.Get("content"),
-		Expires:     expires,
-		FieldErrors: map[string]string{},
+	crtForm := snippetCreateForm{
+		Title:   r.PostForm.Get("title"),
+		Content: r.PostForm.Get("content"),
+		Expires: expires,
 	}
-	form.FieldErrors = validate(form.Title, form.Content, form.Expires)
-	if len(form.FieldErrors) > 0 {
+	validateForm(&crtForm)
+	if !crtForm.Valid() {
 		data := bknd.newTemplateData(r)
-		data.Form = form
+		data.Form = crtForm
 		bknd.renderTemplate(w, http.StatusUnprocessableEntity, "create.gohtml", data)
 		return
 	}
-	id, err := bknd.snippets.Insert(form.Title, form.Content, form.Expires)
+	id, err := bknd.snippets.Insert(crtForm.Title, crtForm.Content, crtForm.Expires)
 	if err != nil {
 		bknd.serverError(w, err)
 	}
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
 
-func validate(title, content string, expires int) map[string]string {
-	var inputErrors = make(map[string]string)
+func validateForm(crtForm *snippetCreateForm) {
+	crtForm.CheckField(validator.NotBlank(crtForm.Title), "title", "Field cannot be blank")
 
-	if strings.TrimSpace(title) == "" {
-		inputErrors["title"] = "Title cannot be blank"
-	} else if utf8.RuneCountInString(title) > 100 {
-		inputErrors["title"] = "Title must be less than 100 characters"
-	}
-	if strings.TrimSpace(content) == "" {
-		inputErrors["content"] = "Content cannot be blank"
-	}
-	if expires != 1 && expires != 30 && expires != 365 {
-		inputErrors["expires"] = "Expires does not match expected value"
-	}
-	return inputErrors
+	crtForm.CheckField(validator.MaxChars(crtForm.Title, 100),
+		"title", "Field cannot be longer than 100 characters")
+
+	crtForm.CheckField(validator.NotBlank(crtForm.Content), "content", "Field cannot be blank")
+
+	crtForm.CheckField(validator.PermittedInt(
+		crtForm.Expires, 1, 30, 365),
+		"expires", "Values other than 1, 30, 365 are invalid")
 }
