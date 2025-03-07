@@ -9,22 +9,22 @@ type Validator struct {
 	InputErrors map[string]string
 }
 
-func (vdr *Validator) AddFieldError(key, value string) {
-	if vdr.InputErrors == nil {
-		vdr.InputErrors = make(map[string]string)
+func (vldtr *Validator) AddFieldError(key, value string) {
+	if vldtr.InputErrors == nil {
+		vldtr.InputErrors = make(map[string]string)
 	}
-	if _, contains := vdr.InputErrors[key]; !contains {
-		vdr.InputErrors[key] = value
+	if _, contains := vldtr.InputErrors[key]; !contains {
+		vldtr.InputErrors[key] = value
 	}
 }
 
-func (vdr *Validator) Valid() bool {
-	return len(vdr.InputErrors) == 0
+func (vldtr *Validator) Valid() bool {
+	return len(vldtr.InputErrors) == 0
 }
 
-func (vdr *Validator) CheckField(ok bool, key, value string) {
+func (vldtr *Validator) CheckField(ok bool, key, value string) {
 	if !ok {
-		vdr.AddFieldError(key, value)
+		vldtr.AddFieldError(key, value)
 	}
 }
 
