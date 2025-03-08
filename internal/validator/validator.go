@@ -22,8 +22,8 @@ func (vldtr *Validator) Valid() bool {
 	return len(vldtr.InputErrors) == 0
 }
 
-func (vldtr *Validator) CheckField(ok bool, key, value string) {
-	if !ok {
+func (vldtr *Validator) CheckField(valid bool, key, value string) {
+	if !valid {
 		vldtr.AddFieldError(key, value)
 	}
 }
