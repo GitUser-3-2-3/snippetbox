@@ -9,6 +9,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/alexedwards/scs/mysqlstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	"snippetbox/pkg/models/mysql"
 
@@ -16,11 +18,12 @@ import (
 )
 
 type backend struct {
-	templateCache map[string]*template.Template
-	logError      *log.Logger
-	logInfo       *log.Logger
-	snippets      *mysql.SnippetModel
-	formDecoder   *form.Decoder
+	templateCache  map[string]*template.Template
+	logError       *log.Logger
+	logInfo        *log.Logger
+	snippets       *mysql.SnippetModel
+	formDecoder    *form.Decoder
+	sessionManager *scs.SessionManager
 }
 
 func main() {
@@ -45,12 +48,18 @@ func main() {
 		logError.Fatal(err)
 	}
 	formDecoder := form.NewDecoder()
+
+	sessionManager := scs.New()
+	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Store = mysqlstore.New(db)
+
 	bknd := &backend{
-		templateCache: templateCache,
-		logError:      logError,
-		logInfo:       logInfo,
-		snippets:      &mysql.SnippetModel{DB: db},
-		formDecoder:   formDecoder,
+		templateCache:  templateCache,
+		logError:       logError,
+		logInfo:        logInfo,
+		snippets:       &mysql.SnippetModel{DB: db},
+		formDecoder:    formDecoder,
+		sessionManager: sessionManager,
 	}
 	srv := &http.Server{
 		ErrorLog:          logError,
