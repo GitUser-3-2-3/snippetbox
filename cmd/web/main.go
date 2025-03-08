@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-playground/form/v4"
 	"snippetbox/pkg/models/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -19,6 +20,7 @@ type backend struct {
 	logError      *log.Logger
 	logInfo       *log.Logger
 	snippets      *mysql.SnippetModel
+	formDecoder   *form.Decoder
 }
 
 func main() {
@@ -42,11 +44,13 @@ func main() {
 	if err != nil {
 		logError.Fatal(err)
 	}
+	formDecoder := form.NewDecoder()
 	bknd := &backend{
+		templateCache: templateCache,
 		logError:      logError,
 		logInfo:       logInfo,
 		snippets:      &mysql.SnippetModel{DB: db},
-		templateCache: templateCache,
+		formDecoder:   formDecoder,
 	}
 	srv := &http.Server{
 		ErrorLog:          logError,
