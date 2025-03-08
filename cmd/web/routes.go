@@ -16,10 +16,12 @@ func (bknd *backend) routes() http.Handler {
 	server := http.FileServer(http.Dir("./ui/static"))
 	router.Handler(http.MethodGet, "/static/*path", http.StripPrefix("/static", server))
 
-	router.HandlerFunc(http.MethodGet, "/", bknd.home)
-	router.HandlerFunc(http.MethodGet, "/snippet/view/:id", bknd.snippetView)
-	router.HandlerFunc(http.MethodGet, "/snippet/create", bknd.snippetCreate)
-	router.HandlerFunc(http.MethodPost, "/snippet/create", bknd.snippetCreatePost)
+	dynamic := alice.New(bknd.sessionManager.LoadAndSave)
+
+	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(bknd.home))
+	router.Handler(http.MethodGet, "/snippet/view/:id", dynamic.ThenFunc(bknd.snippetView))
+	router.Handler(http.MethodGet, "/snippet/create", dynamic.ThenFunc(bknd.snippetCreate))
+	router.Handler(http.MethodPost, "/snippet/create", dynamic.ThenFunc(bknd.snippetCreatePost))
 
 	standard := alice.New(bknd.recoverPanic, bknd.logRequest, secureHeaders)
 	return standard.Then(router)
