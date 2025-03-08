@@ -12,10 +12,10 @@ import (
 )
 
 type snippetCreateForm struct {
-	Title   string
-	Content string
-	Expires int
-	validator.Validator
+	Title               string `form:"title"`
+	Content             string `form:"content"`
+	Expires             int    `form:"expires"`
+	validator.Validator `form:"_"`
 }
 
 func (bknd *backend) home(w http.ResponseWriter, r *http.Request) {
@@ -61,39 +61,35 @@ func (bknd *backend) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 		bknd.clientError(w, http.StatusBadRequest)
 		return
 	}
-	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
+	sptForm := snippetCreateForm{}
+	err = bknd.formDecoder.Decode(&sptForm, r.PostForm)
 	if err != nil {
 		bknd.clientError(w, http.StatusBadRequest)
 		return
 	}
-	crtForm := snippetCreateForm{
-		Title:   r.PostForm.Get("title"),
-		Content: r.PostForm.Get("content"),
-		Expires: expires,
-	}
-	validateForm(&crtForm)
-	if !crtForm.Valid() {
+	validateForm(&sptForm)
+	if !sptForm.Valid() {
 		data := bknd.newTemplateData(r)
-		data.Form = crtForm
+		data.Form = sptForm
 		bknd.renderTemplate(w, http.StatusUnprocessableEntity, "create.gohtml", data)
 		return
 	}
-	id, err := bknd.snippets.Insert(crtForm.Title, crtForm.Content, crtForm.Expires)
+	id, err := bknd.snippets.Insert(sptForm.Title, sptForm.Content, sptForm.Expires)
 	if err != nil {
 		bknd.serverError(w, err)
 	}
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
 
-func validateForm(crtForm *snippetCreateForm) {
-	crtForm.CheckField(validator.NotBlank(crtForm.Title), "title", "Field cannot be blank")
+func validateForm(sptForm *snippetCreateForm) {
+	sptForm.CheckField(validator.NotBlank(sptForm.Title), "title", "Field cannot be blank")
 
-	crtForm.CheckField(validator.MaxChars(crtForm.Title, 100),
+	sptForm.CheckField(validator.MaxChars(sptForm.Title, 100),
 		"title", "Field cannot be longer than 100 characters")
 
-	crtForm.CheckField(validator.NotBlank(crtForm.Content), "content", "Field cannot be blank")
+	sptForm.CheckField(validator.NotBlank(sptForm.Content), "content", "Field cannot be blank")
 
-	crtForm.CheckField(validator.PermittedInt(
-		crtForm.Expires, 1, 30, 365),
+	sptForm.CheckField(validator.PermittedInt(
+		sptForm.Expires, 1, 30, 365),
 		"expires", "Values other than 1, 30, 365 are invalid")
 }
