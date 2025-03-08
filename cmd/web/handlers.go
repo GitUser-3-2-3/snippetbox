@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-playground/form/v4"
 	"github.com/julienschmidt/httprouter"
 	"snippetbox/internal/validator"
 	"snippetbox/pkg/models"
@@ -56,13 +57,8 @@ func (bknd *backend) snippetCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bknd *backend) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		bknd.clientError(w, http.StatusBadRequest)
-		return
-	}
 	sptForm := snippetCreateForm{}
-	err = bknd.formDecoder.Decode(&sptForm, r.PostForm)
+	err := bknd.decodePostForm(r, &sptForm)
 	if err != nil {
 		bknd.clientError(w, http.StatusBadRequest)
 		return
@@ -79,6 +75,21 @@ func (bknd *backend) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 		bknd.serverError(w, err)
 	}
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
+}
+
+func (bknd *backend) decodePostForm(r *http.Request, dst any) error {
+	if err := r.ParseForm(); err != nil {
+		return err
+	}
+	err := bknd.formDecoder.Decode(dst, r.PostForm)
+	if err != nil {
+		var invalidDecoderError *form.InvalidDecoderError
+		if errors.As(err, &invalidDecoderError) {
+			panic(err)
+		}
+		return err
+	}
+	return nil
 }
 
 func validateForm(sptForm *snippetCreateForm) {
