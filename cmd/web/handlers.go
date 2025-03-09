@@ -45,8 +45,10 @@ func (bknd *backend) snippetView(w http.ResponseWriter, r *http.Request) {
 		bknd.serverError(w, err)
 		return
 	}
+	flashMsg := bknd.sessionManager.PopString(r.Context(), "flash")
 	data := bknd.newTemplateData(r)
 	data.Snippet = spt
+	data.Flash = flashMsg
 	bknd.renderTemplate(w, http.StatusOK, "view.gohtml", data)
 }
 
@@ -74,6 +76,7 @@ func (bknd *backend) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		bknd.serverError(w, err)
 	}
+	bknd.sessionManager.Put(r.Context(), "flash", "New snippet created!")
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
 
