@@ -22,9 +22,10 @@ func (bknd *backend) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
-func (bknd *backend) newTemplateData(_ *http.Request) *templateData {
+func (bknd *backend) newTemplateData(r *http.Request) *templateData {
 	return &templateData{
 		CurrentYear: time.Now().Year(),
+		Flash:       bknd.sessionManager.PopString(r.Context(), "flash"),
 	}
 }
 

@@ -45,10 +45,8 @@ func (bknd *backend) snippetView(w http.ResponseWriter, r *http.Request) {
 		bknd.serverError(w, err)
 		return
 	}
-	flashMsg := bknd.sessionManager.PopString(r.Context(), "flash")
 	data := bknd.newTemplateData(r)
 	data.Snippet = spt
-	data.Flash = flashMsg
 	bknd.renderTemplate(w, http.StatusOK, "view.gohtml", data)
 }
 
