@@ -27,7 +27,7 @@ type backend struct {
 }
 
 func main() {
-	dsn := flag.String("dsn", "web:Qwerty1,0*@/snippetbox?parseTime=true", "MySQL database.")
+	dsn := flag.String("dsn", "root:Qwerty1,0*@/snippetbox?parseTime=true", "MySQL database.")
 	addr := flag.String("addr", ":4000", "HTTP network address.")
 	flag.Parse()
 
