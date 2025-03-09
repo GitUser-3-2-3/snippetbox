@@ -68,14 +68,13 @@ func main() {
 		MinVersion:       tls.VersionTLS12,
 	}
 	srv := &http.Server{
-		TLSConfig:         tlsConfig,
-		ErrorLog:          logError,
-		Addr:              *addr,
-		Handler:           bknd.routes(),
-		IdleTimeout:       time.Minute,
-		ReadTimeout:       5 * time.Second,
-		WriteTimeout:      10 * time.Second,
-		ReadHeaderTimeout: 5 * time.Second,
+		TLSConfig:    tlsConfig,
+		ErrorLog:     logError,
+		Addr:         *addr,
+		Handler:      bknd.routes(),
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 	logInfo.Printf("Starting a server on %s", *addr)
 	err = srv.ListenAndServeTLS("./ssl/cert.pem", "./ssl/key.pem")
