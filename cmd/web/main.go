@@ -13,7 +13,7 @@ import (
 	"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
-	"snippetbox/v18/pkg/models/mysql"
+	"snippetbox/pkg/models/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -77,7 +77,7 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 	logInfo.Printf("Starting a server on %s", *addr)
-	err = srv.ListenAndServeTLS("./v18/ssl/cert.pem", "./v18/ssl/key.pem")
+	err = srv.ListenAndServeTLS("./ssl/cert.pem", "./ssl/key.pem")
 	if err != nil {
 		logError.Fatal(err)
 	}
