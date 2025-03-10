@@ -8,8 +8,8 @@ import (
 
 	"github.com/go-playground/form/v4"
 	"github.com/julienschmidt/httprouter"
-	"snippetbox/internal/validator"
-	"snippetbox/pkg/models"
+	"snippetbox/v18/internal/validator"
+	"snippetbox/v18/pkg/models"
 )
 
 type snippetCreateForm struct {

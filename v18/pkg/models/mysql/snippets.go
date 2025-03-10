@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	"snippetbox/pkg/models"
+	"snippetbox/v18/pkg/models"
 )
 
 type SnippetModel struct {
