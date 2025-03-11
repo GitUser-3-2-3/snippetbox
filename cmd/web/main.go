@@ -35,18 +35,26 @@ func main() {
 	logInfo := log.New(os.Stdout, "INFO - \t", log.Ldate|log.Ltime)
 	logError := log.New(os.Stderr, "ERROR - \t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	db, err := openDB(*dsn)
+	bknd, err := backendInit(*dsn, logInfo, logError)
 	if err != nil {
 		logError.Fatal(err)
 	}
-	defer func(db *sql.DB) {
-		if err := db.Close(); err != nil {
-			logError.Fatal("Error closing db", err)
-		}
-	}(db)
-	templateCache, err := newTemplateCache()
+	defer bknd.closeDB()
+
+	err = runServer(*addr, bknd, logInfo, logError)
 	if err != nil {
 		logError.Fatal(err)
+	}
+}
+
+func backendInit(dsn string, logInfo *log.Logger, logError *log.Logger) (*backend, error) {
+	db, err := openDB(dsn)
+	if err != nil {
+		return nil, err
+	}
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		return nil, err
 	}
 	formDecoder := form.NewDecoder()
 
@@ -55,14 +63,17 @@ func main() {
 	sessionManager.Cookie.Secure = true
 	sessionManager.Store = mysqlstore.New(db)
 
-	bknd := &backend{
+	return &backend{
 		templateCache:  templateCache,
 		logError:       logError,
 		logInfo:        logInfo,
 		snippets:       &mysql.SnippetModel{DB: db},
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
-	}
+	}, nil
+}
+
+func runServer(addrs string, bknd *backend, logInfo *log.Logger, logError *log.Logger) error {
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
 		MinVersion:       tls.VersionTLS12,
@@ -70,16 +81,21 @@ func main() {
 	srv := &http.Server{
 		TLSConfig:    tlsConfig,
 		ErrorLog:     logError,
-		Addr:         *addr,
+		Addr:         addrs,
 		Handler:      bknd.routes(),
 		IdleTimeout:  time.Minute,
-		ReadTimeout:  5 * time.Second,
+		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-	logInfo.Printf("Starting a server on %s", *addr)
-	err = srv.ListenAndServeTLS("./ssl/cert.pem", "./ssl/key.pem")
-	if err != nil {
-		logError.Fatal(err)
+	logInfo.Printf("Starting a server on %s", addrs)
+	return srv.ListenAndServeTLS("./ssl/cert.pem", "./ssl/key.pem")
+}
+
+func (bknd *backend) closeDB() {
+	if bknd.snippets != nil && bknd.snippets.DB != nil {
+		if err := bknd.snippets.DB.Close(); err != nil {
+			bknd.logError.Fatal("Error closing db", err)
+		}
 	}
 }
 
