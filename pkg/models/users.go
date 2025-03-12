@@ -47,6 +47,24 @@ func (mdl *UserModel) Exists(_ int) (bool, error) {
 	return false, nil
 }
 
-func (mdl *UserModel) Authenticate(_, _ string) (int, error) {
-	return 0, nil
+func (mdl *UserModel) Authenticate(email, password string) (int, error) {
+	var hashedPassword []byte
+	var id int
+	stmt := `SELECT id, hashed_password FROM users WHERE email = ?`
+
+	err := mdl.DB.QueryRow(stmt, email).Scan(&id, &hashedPassword)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, ErrInvalidCredentials
+		}
+		return 0, err
+	}
+	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return 0, ErrInvalidCredentials
+		}
+		return 0, err
+	}
+	return id, nil
 }
