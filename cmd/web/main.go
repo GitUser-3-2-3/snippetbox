@@ -13,6 +13,7 @@ import (
 	"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
+	"snippetbox/pkg/models"
 	"snippetbox/pkg/models/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -23,6 +24,7 @@ type backend struct {
 	logError       *log.Logger
 	logInfo        *log.Logger
 	snippets       *mysql.SnippetModel
+	users          *models.UserModel
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
 }
@@ -68,6 +70,7 @@ func backendInit(dsn string, logInfo *log.Logger, logError *log.Logger) (*backen
 		logError:       logError,
 		logInfo:        logInfo,
 		snippets:       &mysql.SnippetModel{DB: db},
+		users:          &models.UserModel{DB: db},
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 	}, nil
