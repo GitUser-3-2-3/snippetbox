@@ -4,9 +4,18 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"time"
 
 	"snippetbox/pkg/models"
 )
+
+type Snippet struct {
+	ID      int
+	Title   string
+	Content string
+	Created time.Time
+	Expires time.Time
+}
 
 type SnippetModel struct {
 	DB *sql.DB
@@ -27,12 +36,12 @@ func (mdl *SnippetModel) Insert(title, content string, expires int) (int, error)
 	return int(id), nil
 }
 
-func (mdl *SnippetModel) Get(id int) (*models.Snippet, error) {
+func (mdl *SnippetModel) Get(id int) (*Snippet, error) {
 	stmt := `SELECT id, title, content, created, expires FROM snippets WHERE 
 			 expires > UTC_TIMESTAMP() AND id = ?`
 
 	row := mdl.DB.QueryRow(stmt, id)
-	spt := &models.Snippet{}
+	spt := &Snippet{}
 	err := row.Scan(&spt.ID, &spt.Title, &spt.Content, &spt.Created, &spt.Expires)
 
 	switch {
@@ -45,7 +54,7 @@ func (mdl *SnippetModel) Get(id int) (*models.Snippet, error) {
 	}
 }
 
-func (mdl *SnippetModel) Latest() ([]*models.Snippet, error) {
+func (mdl *SnippetModel) Latest() ([]*Snippet, error) {
 	stmt := `SELECT id, title, content, created, expires FROM snippets
 			 WHERE expires > UTC_TIMESTAMP() ORDER BY created DESC LIMIT 10`
 
@@ -58,9 +67,9 @@ func (mdl *SnippetModel) Latest() ([]*models.Snippet, error) {
 			log.Printf("error closing rows: %v", err)
 		}
 	}(rows)
-	var snippets []*models.Snippet
+	var snippets []*Snippet
 	for rows.Next() {
-		spt := &models.Snippet{}
+		spt := &Snippet{}
 		err := rows.Scan(&spt.ID, &spt.Title, &spt.Content, &spt.Created, &spt.Expires)
 		if err != nil {
 			return nil, err

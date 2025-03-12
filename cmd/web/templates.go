@@ -5,14 +5,14 @@ import (
 	"path/filepath"
 	"time"
 
-	"snippetbox/pkg/models"
+	"snippetbox/pkg/models/mysql"
 )
 
 type templateData struct {
-	Snippet     *models.Snippet
+	Snippet     *mysql.Snippet
 	CurrentYear int
 	Form        any
-	Snippets    []*models.Snippet
+	Snippets    []*mysql.Snippet
 	Flash       string
 }
 
