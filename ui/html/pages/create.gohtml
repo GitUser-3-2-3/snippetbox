@@ -4,14 +4,14 @@
     <form action="/snippet/create" method="post">
         <div>
             <label for="title">Title: </label>
-            {{with .Form.InputErrors.title}}
+            {{with .Form.FieldErrors.title}}
                 <label class="error">{{.}}</label>
             {{end}}
             <input id="title" type="text" name="title" placeholder="Title" value="{{.Form.Title}}">
         </div>
         <div>
             <label for="content">Content: </label>
-            {{with .Form.InputErrors.content}}
+            {{with .Form.FieldErrors.content}}
                 <label class="error">{{.}}</label>
             {{end}}
             <textarea id="content" type="text" name="content" placeholder="Enter snippet">
@@ -19,7 +19,7 @@
         </div>
         <div>
             <label for="delete">Delete in: </label>
-            {{with .Form.InputErrors.expires}}
+            {{with .Form.FieldErrors.expires}}
                 <label class="error">{{.}}</label>
             {{end}}
             <input type="radio" id="delete" name="expires" value="1" {{if (eq .Form.Expires 1)}}checked{{end}}

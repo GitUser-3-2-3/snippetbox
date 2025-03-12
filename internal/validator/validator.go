@@ -10,20 +10,25 @@ var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]"
 	"(?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 type Validator struct {
-	InputErrors map[string]string
+	FieldErrors    map[string]string
+	NonFieldErrors []string
 }
 
 func (vldtr *Validator) AddFieldError(key, value string) {
-	if vldtr.InputErrors == nil {
-		vldtr.InputErrors = make(map[string]string)
+	if vldtr.FieldErrors == nil {
+		vldtr.FieldErrors = make(map[string]string)
 	}
-	if _, contains := vldtr.InputErrors[key]; !contains {
-		vldtr.InputErrors[key] = value
+	if _, contains := vldtr.FieldErrors[key]; !contains {
+		vldtr.FieldErrors[key] = value
 	}
 }
 
+func (vldtr *Validator) AddNonFieldError(errMsg string) {
+	vldtr.NonFieldErrors = append(vldtr.NonFieldErrors, errMsg)
+}
+
 func (vldtr *Validator) Valid() bool {
-	return len(vldtr.InputErrors) == 0
+	return len(vldtr.FieldErrors) == 0 && len(vldtr.NonFieldErrors) == 0
 }
 
 func (vldtr *Validator) CheckField(valid bool, key, value string) {
