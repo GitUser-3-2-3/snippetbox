@@ -106,18 +106,56 @@ func validateForm(sptForm *snippetCreateForm) {
 		"expires", "Values other than 1, 30, 365 are invalid")
 }
 
+type userSignUpForm struct {
+	Name                string `form:"name"`
+	Email               string `form:"email"`
+	Password            string `form:"password"`
+	validator.Validator `form:"_"`
+}
+
 func (bknd *backend) userSignUp(w http.ResponseWriter, r *http.Request) {
-	_, _ = fmt.Fprintln(w, "Sign up")
+	data := bknd.newTemplateData(r)
+	data.Form = userSignUpForm{}
+	bknd.renderTemplate(w, http.StatusOK, "signup.gohtml", data)
 }
+
 func (bknd *backend) userSignUpPost(w http.ResponseWriter, r *http.Request) {
-	_, _ = fmt.Fprintln(w, "Create a new user")
+	signUpForm := userSignUpForm{}
+	err := bknd.decodePostForm(r, &signUpForm)
+	if err != nil {
+		bknd.clientError(w, http.StatusBadRequest)
+		return
+	}
+	validateSignUpForm(&signUpForm)
+	if !signUpForm.Valid() {
+		data := bknd.newTemplateData(r)
+		data.Form = signUpForm
+		bknd.renderTemplate(w, http.StatusUnprocessableEntity, "signup.gohtml", data)
+		return
+	}
+	_, _ = fmt.Fprintln(w, "Created user successfully!")
 }
-func (bknd *backend) userLogin(w http.ResponseWriter, r *http.Request) {
+
+func (bknd *backend) userLogin(w http.ResponseWriter, _ *http.Request) {
 	_, _ = fmt.Fprintln(w, "Login In")
 }
-func (bknd *backend) userLoginPost(w http.ResponseWriter, r *http.Request) {
+
+func (bknd *backend) userLoginPost(w http.ResponseWriter, _ *http.Request) {
 	_, _ = fmt.Fprintln(w, "Login In the created user")
 }
-func (bknd *backend) userLogoutPost(w http.ResponseWriter, r *http.Request) {
+
+func (bknd *backend) userLogoutPost(w http.ResponseWriter, _ *http.Request) {
 	_, _ = fmt.Fprintln(w, "Logout")
+}
+
+func validateSignUpForm(signupForm *userSignUpForm) {
+	signupForm.CheckField(validator.NotBlank(signupForm.Name), "name", "Field cannot be blank")
+
+	signupForm.CheckField(validator.NotBlank(signupForm.Email), "email", "Field cannot be blank")
+	signupForm.CheckField(validator.Matches(signupForm.Email, validator.EmailRX),
+		"email", "Field must be a valid email address")
+
+	signupForm.CheckField(validator.NotBlank(signupForm.Password), "password", "Field cannot be blank")
+	signupForm.CheckField(validator.MinChars(signupForm.Password, 8),
+		"password", "Password must be at least 8 characters long")
 }
