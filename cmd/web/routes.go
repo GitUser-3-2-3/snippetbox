@@ -23,6 +23,12 @@ func (bknd *backend) routes() http.Handler {
 	router.Handler(http.MethodGet, "/snippet/create", dynamic.ThenFunc(bknd.snippetCreate))
 	router.Handler(http.MethodPost, "/snippet/create", dynamic.ThenFunc(bknd.snippetCreatePost))
 
+	router.Handler(http.MethodGet, "/user/signup", dynamic.ThenFunc(bknd.userSignUp))
+	router.Handler(http.MethodPost, "/user/signup", dynamic.ThenFunc(bknd.userSignUpPost))
+	router.Handler(http.MethodGet, "/user/login", dynamic.ThenFunc(bknd.userLogin))
+	router.Handler(http.MethodPost, "/user/login", dynamic.ThenFunc(bknd.userLoginPost))
+	router.Handler(http.MethodPost, "/user/logout", dynamic.ThenFunc(bknd.userLogoutPost))
+
 	standard := alice.New(bknd.recoverPanic, bknd.logRequest, secureHeaders)
 	return standard.Then(router)
 }

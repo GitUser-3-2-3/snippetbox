@@ -105,3 +105,19 @@ func validateForm(sptForm *snippetCreateForm) {
 		sptForm.Expires, 1, 30, 365),
 		"expires", "Values other than 1, 30, 365 are invalid")
 }
+
+func (bknd *backend) userSignUp(w http.ResponseWriter, r *http.Request) {
+	_, _ = fmt.Fprintln(w, "Sign up")
+}
+func (bknd *backend) userSignUpPost(w http.ResponseWriter, r *http.Request) {
+	_, _ = fmt.Fprintln(w, "Create a new user")
+}
+func (bknd *backend) userLogin(w http.ResponseWriter, r *http.Request) {
+	_, _ = fmt.Fprintln(w, "Login In")
+}
+func (bknd *backend) userLoginPost(w http.ResponseWriter, r *http.Request) {
+	_, _ = fmt.Fprintln(w, "Login In the created user")
+}
+func (bknd *backend) userLogoutPost(w http.ResponseWriter, r *http.Request) {
+	_, _ = fmt.Fprintln(w, "Logout")
+}
