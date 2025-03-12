@@ -149,18 +149,6 @@ func (bknd *backend) userSignUpPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/user/login/", http.StatusSeeOther)
 }
 
-func (bknd *backend) userLogin(w http.ResponseWriter, _ *http.Request) {
-	_, _ = fmt.Fprintln(w, "Login In")
-}
-
-func (bknd *backend) userLoginPost(w http.ResponseWriter, _ *http.Request) {
-	_, _ = fmt.Fprintln(w, "Login In the created user")
-}
-
-func (bknd *backend) userLogoutPost(w http.ResponseWriter, _ *http.Request) {
-	_, _ = fmt.Fprintln(w, "Logout")
-}
-
 func validateSignUpForm(signupForm *userSignUpForm) {
 	signupForm.CheckField(validator.NotBlank(signupForm.Name), "name", "Field cannot be blank")
 
@@ -171,4 +159,63 @@ func validateSignUpForm(signupForm *userSignUpForm) {
 	signupForm.CheckField(validator.NotBlank(signupForm.Password), "password", "Field cannot be blank")
 	signupForm.CheckField(validator.MinChars(signupForm.Password, 8),
 		"password", "Password must be at least 8 characters long")
+}
+
+type userLoginForm struct {
+	Email               string `form:"email"`
+	Password            string `form:"password"`
+	validator.Validator `form:"_"`
+}
+
+func (bknd *backend) userLogin(w http.ResponseWriter, r *http.Request) {
+	data := bknd.newTemplateData(r)
+	data.Form = userLoginForm{}
+	bknd.renderTemplate(w, http.StatusOK, "login.gohtml", data)
+}
+
+func (bknd *backend) userLoginPost(w http.ResponseWriter, r *http.Request) {
+	loginForm := userLoginForm{}
+	err := bknd.decodePostForm(r, &loginForm)
+	if err != nil {
+		bknd.clientError(w, http.StatusBadRequest)
+		return
+	}
+	validateLoginForm(&loginForm)
+	if !loginForm.Valid() {
+		data := bknd.newTemplateData(r)
+		data.Form = loginForm
+		bknd.renderTemplate(w, http.StatusUnprocessableEntity, "login.gohtml", data)
+		return
+	}
+	id, err := bknd.users.Authenticate(loginForm.Email, loginForm.Password)
+	if err != nil {
+		if errors.Is(err, models.ErrInvalidCredentials) {
+			loginForm.AddNonFieldError("Email or Password is invalid!")
+			data := bknd.newTemplateData(r)
+			data.Form = loginForm
+			bknd.renderTemplate(w, http.StatusUnprocessableEntity, "login.gohtml", data)
+		} else {
+			bknd.serverError(w, err)
+		}
+		return
+	}
+	err = bknd.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		bknd.serverError(w, err)
+		return
+	}
+	bknd.sessionManager.Put(r.Context(), "authenticatedUserId", id)
+	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
+}
+
+func validateLoginForm(loginForm *userLoginForm) {
+	loginForm.CheckField(validator.NotBlank(loginForm.Email), "email", "Field cannot be blank")
+	loginForm.CheckField(validator.Matches(loginForm.Email, validator.EmailRX),
+		"email", "Field must be a valid email address")
+
+	loginForm.CheckField(validator.NotBlank(loginForm.Password), "password", "Field cannot be blank")
+}
+
+func (bknd *backend) userLogoutPost(w http.ResponseWriter, _ *http.Request) {
+	_, _ = fmt.Fprintln(w, "Logout")
 }
