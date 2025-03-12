@@ -4,14 +4,14 @@
     <form action="/user/signup" method="post" novalidate>
         <div>
             <label for="name">Name:</label>
-            {{with .Form.FieldErrors.name}}
+            {{with .Form.InputErrors.name}}
                 <label class="error">{{.}}</label>
             {{end}}
             <input id="name" type="text" name="name" placeholder="John Doe" value="{{.Form.Name}}">
         </div>
         <div>
             <label for="email">Email:</label>
-            {{with .Form.FieldErrors.email}}
+            {{with .Form.InputErrors.email}}
                 <label class="error">{{.}}</label>
             {{end}}
             <input id="email" type="email" name="email" placeholder="youremail@example.com"
@@ -19,10 +19,10 @@
         </div>
         <div>
             <label for="password">Password:</label>
-            {{with .Form.FieldErrors.password}}
+            {{with .Form.InputErrors.password}}
                 <label class="error">{{.}}</label>
             {{end}}
-            <input id="password" type="password" name="password">
+            <input id="password" type="password" name="password" placeholder="laudachaatlo3000">
         </div>
         <div>
             <input type="submit" value="Signup">
