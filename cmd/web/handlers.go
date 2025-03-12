@@ -133,7 +133,20 @@ func (bknd *backend) userSignUpPost(w http.ResponseWriter, r *http.Request) {
 		bknd.renderTemplate(w, http.StatusUnprocessableEntity, "signup.gohtml", data)
 		return
 	}
-	_, _ = fmt.Fprintln(w, "Created user successfully!")
+	err = bknd.users.Insert(signUpForm.Name, signUpForm.Email, signUpForm.Password)
+	if err != nil {
+		if errors.Is(err, models.ErrDuplicateEmail) {
+			signUpForm.AddFieldError("email", "Email already in use!")
+			data := bknd.newTemplateData(r)
+			data.Form = signUpForm
+			bknd.renderTemplate(w, http.StatusUnprocessableEntity, "signup.gohtml", data)
+		} else {
+			bknd.serverError(w, err)
+		}
+		return
+	}
+	bknd.sessionManager.Put(r.Context(), "flash", "New user signed up! Please log in!")
+	http.Redirect(w, r, "/user/login/", http.StatusSeeOther)
 }
 
 func (bknd *backend) userLogin(w http.ResponseWriter, _ *http.Request) {
