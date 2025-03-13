@@ -33,3 +33,14 @@ func (bknd *backend) recoverPanic(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func (bknd *backend) requireAuthentication(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !bknd.isAuthenticated(r) {
+			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			return
+		}
+		w.Header().Add("Cache-Control", "no-cache, no-store, must-revalidate")
+		next.ServeHTTP(w, r)
+	})
+}
