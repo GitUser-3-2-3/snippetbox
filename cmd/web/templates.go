@@ -9,11 +9,12 @@ import (
 )
 
 type templateData struct {
-	Snippet     *mysql.Snippet
-	CurrentYear int
-	Form        any
-	Snippets    []*mysql.Snippet
-	Flash       string
+	Snippet         *mysql.Snippet
+	CurrentYear     int
+	Form            any
+	Snippets        []*mysql.Snippet
+	Flash           string
+	IsAuthenticated bool
 }
 
 func humanDate(t time.Time) string {
