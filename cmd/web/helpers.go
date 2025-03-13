@@ -24,8 +24,9 @@ func (bknd *backend) clientError(w http.ResponseWriter, status int) {
 
 func (bknd *backend) newTemplateData(r *http.Request) *templateData {
 	return &templateData{
-		CurrentYear: time.Now().Year(),
-		Flash:       bknd.sessionManager.PopString(r.Context(), "flash"),
+		CurrentYear:     time.Now().Year(),
+		Flash:           bknd.sessionManager.PopString(r.Context(), "flash"),
+		IsAuthenticated: bknd.isAuthenticated(r),
 	}
 }
 
@@ -46,4 +47,8 @@ func (bknd *backend) renderTemplate(w http.ResponseWriter, status int, page stri
 	if err != nil {
 		bknd.serverError(w, fmt.Errorf("error writing content: %w", err))
 	}
+}
+
+func (bknd *backend) isAuthenticated(r *http.Request) bool {
+	return bknd.sessionManager.Exists(r.Context(), "authenticatedUserId")
 }
