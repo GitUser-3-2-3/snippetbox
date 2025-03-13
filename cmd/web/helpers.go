@@ -53,5 +53,9 @@ func (bknd *backend) renderTemplate(w http.ResponseWriter, status int, page stri
 }
 
 func (bknd *backend) isAuthenticated(r *http.Request) bool {
-	return bknd.sessionManager.Exists(r.Context(), "authenticatedUserId")
+	isAuthenticated, ok := r.Context().Value(isAuthenticatedCtxKey).(bool)
+	if !ok {
+		return false
+	}
+	return isAuthenticated
 }
