@@ -16,7 +16,7 @@ func (bknd *backend) routes() http.Handler {
 	server := http.FileServer(http.Dir("./ui/static"))
 	router.Handler(http.MethodGet, "/static/*path", http.StripPrefix("/static", server))
 
-	dynamic := alice.New(bknd.sessionManager.LoadAndSave)
+	dynamic := alice.New(bknd.sessionManager.LoadAndSave, noSurf)
 
 	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(bknd.home))
 	router.Handler(http.MethodGet, "/snippet/view/:id", dynamic.ThenFunc(bknd.snippetView))

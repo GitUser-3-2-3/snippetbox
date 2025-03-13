@@ -15,6 +15,7 @@ type templateData struct {
 	Snippets        []*mysql.Snippet
 	Flash           string
 	IsAuthenticated bool
+	CSRFToken       string
 }
 
 func humanDate(t time.Time) string {

@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	"github.com/justinas/nosurf"
 )
 
 func (bknd *backend) serverError(w http.ResponseWriter, err error) {
@@ -24,9 +26,10 @@ func (bknd *backend) clientError(w http.ResponseWriter, status int) {
 
 func (bknd *backend) newTemplateData(r *http.Request) *templateData {
 	return &templateData{
-		CurrentYear:     time.Now().Year(),
 		Flash:           bknd.sessionManager.PopString(r.Context(), "flash"),
+		CurrentYear:     time.Now().Year(),
 		IsAuthenticated: bknd.isAuthenticated(r),
+		CSRFToken:       nosurf.Token(r),
 	}
 }
 
