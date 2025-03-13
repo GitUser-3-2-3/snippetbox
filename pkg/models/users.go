@@ -43,8 +43,12 @@ func (mdl *UserModel) Insert(name, email, password string) error {
 	return nil
 }
 
-func (mdl *UserModel) Exists(_ int) (bool, error) {
-	return false, nil
+func (mdl *UserModel) Exists(id int) (bool, error) {
+	var exists bool
+	stmt := `SELECT EXISTS(SELECT true FROM users WHERE id = ?)`
+
+	err := mdl.DB.QueryRow(stmt, id).Scan(&exists)
+	return exists, err
 }
 
 func (mdl *UserModel) Authenticate(email, password string) (int, error) {
