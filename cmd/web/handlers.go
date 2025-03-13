@@ -101,7 +101,7 @@ func validateForm(sptForm *snippetCreateForm) {
 
 	sptForm.CheckField(validator.NotBlank(sptForm.Content), "content", "Field cannot be blank")
 
-	sptForm.CheckField(validator.PermittedInt(
+	sptForm.CheckField(validator.PermittedValue(
 		sptForm.Expires, 1, 30, 365),
 		"expires", "Values other than 1, 30, 365 are invalid")
 }
