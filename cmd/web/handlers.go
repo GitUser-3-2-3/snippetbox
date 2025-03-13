@@ -216,6 +216,13 @@ func validateLoginForm(loginForm *userLoginForm) {
 	loginForm.CheckField(validator.NotBlank(loginForm.Password), "password", "Field cannot be blank")
 }
 
-func (bknd *backend) userLogoutPost(w http.ResponseWriter, _ *http.Request) {
-	_, _ = fmt.Fprintln(w, "Logout")
+func (bknd *backend) userLogoutPost(w http.ResponseWriter, r *http.Request) {
+	err := bknd.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		bknd.serverError(w, err)
+		return
+	}
+	bknd.sessionManager.Remove(r.Context(), "authenticatedUserId")
+	bknd.sessionManager.Put(r.Context(), "flash", "You've been logged out!")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
