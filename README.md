@@ -9,7 +9,6 @@ A web application for creating and sharing text snippets. This project is based 
 - Secure session management
 - CSRF protection
 - RESTful routing
-- Responsive web interface
 
 ## Technologies
 
