@@ -10,11 +10,12 @@ import (
 	"os"
 	"time"
 
+	"snippetbox/pkg/models"
+	"snippetbox/pkg/models/mysql"
+
 	"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
-	"snippetbox/pkg/models"
-	"snippetbox/pkg/models/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
 )

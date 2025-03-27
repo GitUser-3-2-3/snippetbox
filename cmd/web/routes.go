@@ -3,9 +3,10 @@ package main
 import (
 	"net/http"
 
+	"snippetbox/ui"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
-	"snippetbox/ui"
 )
 
 func (bknd *backend) routes() http.Handler {

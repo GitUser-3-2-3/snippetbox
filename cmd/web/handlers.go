@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-playground/form/v4"
-	"github.com/julienschmidt/httprouter"
 	"snippetbox/internal/validator"
 	"snippetbox/pkg/models"
+
+	"github.com/go-playground/form/v4"
+	"github.com/julienschmidt/httprouter"
 )
 
 type snippetCreateForm struct {

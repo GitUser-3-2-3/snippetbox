@@ -1,6 +1,7 @@
 # Snippetbox
 
-A web application for creating and sharing text snippets. This project is based on Alex Edwards' "Let's Go" book and serves as a practical implementation of Go web development concepts.
+A web application for creating and sharing text snippets. This project is based on Alex Edwards' "Let's Go" book and serves as a
+practical implementation of Go web development concepts.
 
 ## Features
 
