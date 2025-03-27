@@ -10,7 +10,6 @@ practical implementation of Go web development concepts.
 - Secure session management
 - CSRF protection
 - RESTful routing
-- Responsive web interface
 
 ## Technologies
 
